@@ -36,27 +36,33 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13
 .tb-nav button.active{color:#f5f4f0;border-bottom-color:var(--orange)}
 .tb-sp{flex:1}
 .tb-clock{font-family:var(--mono);font-size:10px;color:rgba(245,244,240,.3);letter-spacing:.08em;margin-right:16px}
-.tb-user{font-family:var(--mono);font-size:10px;color:rgba(245,244,240,.5);margin-right:12px;letter-spacing:.06em}
-#btn-new{background:var(--orange);color:#fff;border:none;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:7px 16px;cursor:pointer;transition:background .12s;margin-left:8px}
+.tb-user{font-family:var(--mono);font-size:10px;color:rgba(245,244,240,.45);margin-right:10px;letter-spacing:.06em}
+
+/* Hidden admin trigger — tiny dot in corner */
+#admin-trigger{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.08);cursor:pointer;margin-left:8px;transition:background .2s;flex-shrink:0}
+#admin-trigger:hover{background:var(--orange)}
+
+#btn-new{background:var(--orange);color:#fff;border:none;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:7px 16px;cursor:pointer;transition:background .12s;margin-left:8px;display:none}
 #btn-new:hover{background:var(--orange2)}
-#btn-logout{background:none;color:rgba(245,244,240,.4);border:1px solid rgba(255,255,255,.1);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .12s;margin-left:8px}
+#btn-logout{background:none;color:rgba(245,244,240,.4);border:1px solid rgba(255,255,255,.1);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .12s;margin-left:8px;display:none}
 #btn-logout:hover{color:rgba(245,244,240,.8);border-color:rgba(255,255,255,.3)}
 
-/* LOGIN SCREEN */
-#login-screen{position:fixed;inset:0;background:var(--text);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0}
-.login-box{width:380px;background:#1e1d1a;border:1px solid #2e2d29}
-.login-top{padding:24px 28px;border-bottom:1px solid #2e2d29}
-.login-brand{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
-.login-sub{font-family:var(--mono);font-size:10px;color:rgba(245,244,240,.3);letter-spacing:.1em}
-.login-form{padding:24px 28px;display:flex;flex-direction:column;gap:14px}
-.login-field label{display:block;font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,244,240,.35);margin-bottom:5px}
-.login-field input{width:100%;background:#111;border:1px solid #2e2d29;font-family:var(--mono);font-size:12px;color:#f5f4f0;padding:8px 10px;outline:none;transition:border-color .12s}
-.login-field input:focus{border-color:var(--orange)}
-.login-field input::placeholder{color:#444}
-.login-btn{width:100%;background:var(--orange);color:#fff;border:none;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:11px;cursor:pointer;transition:background .12s;margin-top:4px}
+/* LOGIN MODAL */
+#login-modal{position:fixed;inset:0;background:rgba(10,10,8,.7);display:none;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(4px)}
+#login-modal.open{display:flex}
+.login-box{width:360px;background:#1e1d1a;border:1px solid #2e2d29}
+.login-top{padding:20px 24px;border-bottom:1px solid #2e2d29;display:flex;align-items:center;justify-content:space-between}
+.login-brand{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--orange)}
+.login-close{background:none;border:none;color:rgba(245,244,240,.3);font-size:18px;cursor:pointer;line-height:1;padding:0}
+.login-close:hover{color:rgba(245,244,240,.7)}
+.login-form{padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.lf-label{display:block;font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,244,240,.35);margin-bottom:4px}
+.lf-input{width:100%;background:#111;border:1px solid #2e2d29;font-family:var(--mono);font-size:12px;color:#f5f4f0;padding:8px 10px;outline:none;transition:border-color .12s}
+.lf-input:focus{border-color:var(--orange)}
+.lf-input::placeholder{color:#444}
+.login-btn{width:100%;background:var(--orange);color:#fff;border:none;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:10px;cursor:pointer;transition:background .12s;margin-top:2px}
 .login-btn:hover{background:var(--orange2)}
-.login-err{font-family:var(--mono);font-size:10px;color:#f06060;text-align:center;min-height:16px;letter-spacing:.06em}
-.login-note{font-family:var(--mono);font-size:9px;color:rgba(245,244,240,.2);text-align:center;padding:0 28px 20px;line-height:1.6;letter-spacing:.04em}
+.login-err{font-family:var(--mono);font-size:10px;color:#f06060;min-height:14px;letter-spacing:.06em;text-align:center}
 
 /* LAYOUT */
 #layout{display:flex;height:calc(100vh - 44px)}
@@ -172,10 +178,6 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
 .btn-danger{background:var(--white);color:var(--red);border:1px solid rgba(192,57,43,.3);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px;cursor:pointer;transition:all .12s}
 .btn-danger:hover{background:var(--red-bg)}
 
-/* LOADING */
-.loading-overlay{position:fixed;inset:0;background:rgba(245,244,240,.7);display:flex;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(2px)}
-.loading-box{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text2);background:var(--white);border:1px solid var(--border);padding:16px 24px}
-
 /* TOAST */
 #toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#f5f4f0;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px;border-left:3px solid var(--orange);opacity:0;transform:translateY(8px);transition:all .18s;pointer-events:none;z-index:999}
 #toast.show{opacity:1;transform:translateY(0)}
@@ -185,32 +187,31 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login-screen">
+<!-- LOGIN MODAL (hidden by default) -->
+<div id="login-modal">
   <div class="login-box">
     <div class="login-top">
-      <div class="login-brand">The Equity Terminal</div>
-      <div class="login-sub">// EQUITY RESEARCH PLATFORM</div>
+      <div class="login-brand">Admin Access</div>
+      <button class="login-close" onclick="closeLogin()">×</button>
     </div>
     <div class="login-form">
-      <div class="login-field field">
-        <label>Email</label>
-        <input type="email" id="l-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+      <div>
+        <label class="lf-label">Email</label>
+        <input class="lf-input" type="email" id="l-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
-      <div class="login-field field">
-        <label>Password</label>
-        <input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <div>
+        <label class="lf-label">Password</label>
+        <input class="lf-input" type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <div class="login-err" id="l-err"></div>
       <button class="login-btn" onclick="doLogin()">ACCESS TERMINAL</button>
     </div>
-    <div class="login-note">This terminal is private. Reports are publicly readable via link — only authenticated users can create or edit.</div>
   </div>
 </div>
 
 <!-- TOPBAR -->
 <div id="topbar">
-  <div class="tb-brand">The Equity Terminal <span>// EQUITY</span></div>
+  <div class="tb-brand">The Equity Terminal <span>// EQUITY RESEARCH</span></div>
   <div class="tb-div"></div>
   <div class="tb-nav">
     <button class="active" onclick="goView('dashboard')">Coverage</button>
@@ -221,6 +222,8 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
   <div class="tb-user" id="tb-user"></div>
   <button id="btn-new" onclick="openEditor()">+ NEW REPORT</button>
   <button id="btn-logout" onclick="doLogout()">LOGOUT</button>
+  <!-- Tiny hidden dot — only you know to click this -->
+  <div id="admin-trigger" onclick="openLogin()" title=""></div>
 </div>
 
 <div id="layout">
@@ -251,8 +254,8 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
           <tbody id="dash-tbody"></tbody>
         </table>
         <div id="dash-empty" class="empty-state" style="display:none">
-          <div class="es-label">No Reports Found</div>
-          <div class="es-body">Click <strong>+ NEW REPORT</strong> to begin your coverage.</div>
+          <div class="es-label">No Reports Yet</div>
+          <div class="es-body">Reports will appear here once published.</div>
         </div>
       </div>
     </div>
@@ -265,8 +268,8 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
       </div>
       <div id="list-body"></div>
       <div id="list-empty" class="empty-state" style="display:none">
-        <div class="es-label">No Reports Found</div>
-        <div class="es-body">Click <strong>+ NEW REPORT</strong> to begin your coverage.</div>
+        <div class="es-label">No Reports Yet</div>
+        <div class="es-body">Reports will appear here once published.</div>
       </div>
     </div>
 
@@ -284,7 +287,7 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
         </div>
         <div class="rv-thesis" id="rv-thesis"></div>
         <div class="rv-body" id="rv-body"></div>
-        <div class="rv-actions" id="rv-actions">
+        <div class="rv-actions">
           <button class="btn-primary" id="rv-edit-btn" onclick="openEditor(currentId)" style="display:none">Edit Report</button>
           <button class="btn-sec" onclick="goBack()">← Back</button>
           <button class="btn-danger" id="rv-del-btn" onclick="deleteReport(currentId)" style="display:none;margin-left:auto">Delete</button>
@@ -360,13 +363,11 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
 <div id="toast"></div>
 
 <script>
-// ── SUPABASE INIT ──
 const SUPA_URL = 'https://imfvmjdbyqrepadgqjyp.supabase.co';
 const SUPA_KEY = 'sb_publishable_H20XOlSPQA1qMjI3uH7rog_JARKxkZ9';
 const { createClient } = supabase;
 const db = createClient(SUPA_URL, SUPA_KEY);
 
-// ── STATE ──
 let reports = [];
 let currentView = 'dashboard';
 let currentId = null;
@@ -374,7 +375,7 @@ let editingId = null;
 let selectedRating = '';
 let currentUser = null;
 
-// ── CLOCK ──
+// Clock
 function tick() {
   const n = new Date();
   document.getElementById('clock').textContent =
@@ -383,90 +384,86 @@ function tick() {
 }
 setInterval(tick, 1000); tick();
 
-// ── AUTH ──
+// Login modal
+function openLogin() {
+  document.getElementById('login-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('l-email').focus(), 100);
+}
+function closeLogin() {
+  document.getElementById('login-modal').classList.remove('open');
+  document.getElementById('l-err').textContent = '';
+}
+// Close on backdrop click
+document.getElementById('login-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeLogin();
+});
+
+// Auth
 async function doLogin() {
   const email = document.getElementById('l-email').value.trim();
   const pass  = document.getElementById('l-pass').value;
   const errEl = document.getElementById('l-err');
   errEl.textContent = '';
-  if (!email || !pass) { errEl.textContent = 'Email and password required'; return; }
-
+  if (!email||!pass) { errEl.textContent='Email and password required'; return; }
   const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
-  if (error) {
-    // Try sign up if user doesn't exist yet
-    if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('not found')) {
-      const { error: err2 } = await db.auth.signUp({ email, password: pass });
-      if (err2) { errEl.textContent = err2.message; return; }
-      errEl.textContent = 'Account created — check email to confirm, then log in.';
-      return;
-    }
-    errEl.textContent = error.message; return;
-  }
+  if (error) { errEl.textContent = error.message; return; }
   currentUser = data.user;
+  closeLogin();
   onLoggedIn();
 }
 
 async function doLogout() {
   await db.auth.signOut();
   currentUser = null;
-  document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('tb-user').textContent = '';
   document.getElementById('btn-new').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
+  toast('Logged out');
+  goView('dashboard');
 }
 
 function onLoggedIn() {
-  document.getElementById('login-screen').style.display = 'none';
   document.getElementById('tb-user').textContent = currentUser.email.split('@')[0].toUpperCase();
   document.getElementById('btn-new').style.display = 'inline-block';
   document.getElementById('btn-logout').style.display = 'inline-block';
-  loadReports();
+  toast('Welcome back!');
 }
 
-// ── DATA ──
+// Data
 async function loadReports() {
   const { data, error } = await db.from('reports').select('*').order('created_at', { ascending: false });
-  if (error) { toast('Error loading reports'); console.error(error); return; }
-  reports = (data || []).map(r => ({
-    id: r.id,
-    ticker: r.ticker,
-    company: r.company,
-    title: r.title,
-    sector: r.sector,
-    rating: r.rating,
-    priceTarget: r.price_target,
-    currentPrice: r.current_price,
-    thesis: r.thesis,
-    body: r.body,
-    date: r.created_at
+  if (error) { console.error(error); return; }
+  reports = (data||[]).map(r => ({
+    id: r.id, ticker: r.ticker, company: r.company,
+    title: r.title, sector: r.sector, rating: r.rating,
+    priceTarget: r.price_target, currentPrice: r.current_price,
+    thesis: r.thesis, body: r.body, date: r.created_at
   }));
-  renderDashboard();
-  renderSidebar();
+  renderDashboard(); renderSidebar();
 }
 
-// ── NAVIGATION ──
+// Navigation
 function goView(v) {
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
-  document.querySelectorAll('.tb-nav button').forEach((b,i) => {
-    b.classList.toggle('active', (i===0&&v==='dashboard')||(i===1&&v==='list'));
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.tb-nav button').forEach((b,i)=>{
+    b.classList.toggle('active',(i===0&&v==='dashboard')||(i===1&&v==='list'));
   });
-  currentView = v;
+  currentView=v;
   if (v==='dashboard') renderDashboard();
   if (v==='list') renderList();
   renderSidebar();
 }
-
 function goBack() { goView('dashboard'); }
 
-// ── SIDEBAR ──
+// Sidebar
 function renderSidebar() {
-  const q = (document.getElementById('sb-search').value||'').toLowerCase();
-  const f = reports.filter(r => r.ticker.toLowerCase().includes(q)||r.company.toLowerCase().includes(q));
-  document.getElementById('sb-count').textContent = `(${f.length})`;
-  const el = document.getElementById('sb-list');
-  if (!f.length) { el.innerHTML=`<div style="padding:12px 10px;font-family:var(--mono);font-size:10px;color:var(--text3)">No results</div>`; return; }
-  el.innerHTML = f.map(r=>`
+  const q=(document.getElementById('sb-search').value||'').toLowerCase();
+  const f=reports.filter(r=>r.ticker.toLowerCase().includes(q)||r.company.toLowerCase().includes(q));
+  document.getElementById('sb-count').textContent=`(${f.length})`;
+  const el=document.getElementById('sb-list');
+  if (!f.length){el.innerHTML=`<div style="padding:12px 10px;font-family:var(--mono);font-size:10px;color:var(--text3)">No results</div>`;return;}
+  el.innerHTML=f.map(r=>`
     <div class="sb-item${currentId===r.id?' active':''}" onclick="viewReport('${r.id}')">
       <div class="si-ticker">${r.ticker}${r.rating?`<span class="badge ${r.rating}">${r.rating}</span>`:''}</div>
       <div class="si-co">${r.company}</div>
@@ -474,29 +471,29 @@ function renderSidebar() {
     </div>`).join('');
 }
 
-// ── DASHBOARD ──
+// Dashboard
 function renderDashboard() {
   document.getElementById('dash-date').textContent =
     new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  const n = reports.length;
-  document.getElementById('tbl-count').textContent = n ? `— ${n} POSITION${n!==1?'S':''}` : '';
-  const buy  = reports.filter(r=>r.rating==='BUY').length;
-  const hold = reports.filter(r=>r.rating==='HOLD').length;
-  const sell = reports.filter(r=>r.rating==='SELL').length;
-  const wu = reports.filter(r=>r.priceTarget&&r.currentPrice);
-  const ups = wu.map(r=>((r.priceTarget-r.currentPrice)/r.currentPrice)*100);
-  const avg = ups.length ? ups.reduce((a,b)=>a+b,0)/ups.length : null;
-  const secs = new Set(reports.map(r=>r.sector).filter(Boolean)).size;
-  document.getElementById('kpi-row').innerHTML = `
+  const n=reports.length;
+  document.getElementById('tbl-count').textContent=n?`— ${n} POSITION${n!==1?'S':''}` :'';
+  const buy=reports.filter(r=>r.rating==='BUY').length;
+  const hold=reports.filter(r=>r.rating==='HOLD').length;
+  const sell=reports.filter(r=>r.rating==='SELL').length;
+  const wu=reports.filter(r=>r.priceTarget&&r.currentPrice);
+  const ups=wu.map(r=>((r.priceTarget-r.currentPrice)/r.currentPrice)*100);
+  const avg=ups.length?ups.reduce((a,b)=>a+b,0)/ups.length:null;
+  const secs=new Set(reports.map(r=>r.sector).filter(Boolean)).size;
+  document.getElementById('kpi-row').innerHTML=`
     <div class="kpi"><div class="k-label">Reports</div><div class="k-val">${n}</div><div class="k-sub">${secs} sector${secs!==1?'s':''}</div></div>
     <div class="kpi"><div class="k-label">Buy</div><div class="k-val up">${buy}</div><div class="k-sub">${n?Math.round(buy/n*100):0}% of coverage</div></div>
     <div class="kpi"><div class="k-label">Hold</div><div class="k-val">${hold}</div><div class="k-sub">${n?Math.round(hold/n*100):0}% of coverage</div></div>
     <div class="kpi"><div class="k-label">Sell</div><div class="k-val dn">${sell}</div><div class="k-sub">${n?Math.round(sell/n*100):0}% of coverage</div></div>
     <div class="kpi"><div class="k-label">Avg. Upside</div><div class="k-val ${avg===null?'':avg>=0?'up':'dn'}">${avg===null?'—':(avg>=0?'+':'')+avg.toFixed(1)+'%'}</div><div class="k-sub">${ups.length} w/ targets</div></div>`;
-  if (!n) { document.getElementById('dash-tbody').innerHTML=''; document.getElementById('dash-empty').style.display='block'; return; }
+  if (!n){document.getElementById('dash-tbody').innerHTML='';document.getElementById('dash-empty').style.display='block';return;}
   document.getElementById('dash-empty').style.display='none';
-  document.getElementById('dash-tbody').innerHTML = reports.map(r => {
-    const up = r.priceTarget&&r.currentPrice ? ((r.priceTarget-r.currentPrice)/r.currentPrice*100) : null;
+  document.getElementById('dash-tbody').innerHTML=reports.map(r=>{
+    const up=r.priceTarget&&r.currentPrice?((r.priceTarget-r.currentPrice)/r.currentPrice*100):null;
     return `<tr onclick="viewReport('${r.id}')">
       <td class="td-tick">${r.ticker}</td><td>${r.company}</td>
       <td class="td-muted">${r.sector||'—'}</td>
@@ -509,14 +506,14 @@ function renderDashboard() {
   }).join('');
 }
 
-// ── LIST ──
+// List
 function renderList() {
-  const n = reports.length;
-  document.getElementById('list-sub').textContent = n ? `${n} report${n!==1?'s':''}` : '';
-  if (!n) { document.getElementById('list-body').innerHTML=''; document.getElementById('list-empty').style.display='block'; return; }
+  const n=reports.length;
+  document.getElementById('list-sub').textContent=n?`${n} report${n!==1?'s':''}` :'';
+  if (!n){document.getElementById('list-body').innerHTML='';document.getElementById('list-empty').style.display='block';return;}
   document.getElementById('list-empty').style.display='none';
-  document.getElementById('list-body').innerHTML = reports.map(r => {
-    const up = r.priceTarget&&r.currentPrice ? ((r.priceTarget-r.currentPrice)/r.currentPrice*100) : null;
+  document.getElementById('list-body').innerHTML=reports.map(r=>{
+    const up=r.priceTarget&&r.currentPrice?((r.priceTarget-r.currentPrice)/r.currentPrice*100):null;
     return `<div onclick="viewReport('${r.id}')" style="background:var(--white);border:1px solid var(--border);margin-bottom:8px;padding:14px 16px;cursor:pointer;display:flex;gap:16px;align-items:flex-start;transition:border-color .1s"
       onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="min-width:68px">
@@ -535,28 +532,27 @@ function renderList() {
   }).join('');
 }
 
-// ── REPORT VIEW ──
+// Report view
 function viewReport(id) {
-  const r = reports.find(x=>x.id===id); if (!r) return;
-  currentId = id;
-  document.getElementById('rv-strip').textContent = `EQUITY RESEARCH — ${r.ticker} — ${r.company.toUpperCase()}`;
-  document.getElementById('rv-ticker').textContent = r.ticker;
-  document.getElementById('rv-badge').innerHTML = r.rating?`<span class="badge ${r.rating}">${r.rating}</span>`:'';
-  document.getElementById('rv-title').textContent = r.title||r.company;
-  const up = r.priceTarget&&r.currentPrice ? ((r.priceTarget-r.currentPrice)/r.currentPrice*100) : null;
-  let dc = `<div class="rv-datum"><div class="dl">Company</div><div class="dv">${r.company}</div></div>`;
-  if (r.sector)       dc += `<div class="rv-datum"><div class="dl">Sector</div><div class="dv">${r.sector}</div></div>`;
-  if (r.priceTarget)  dc += `<div class="rv-datum"><div class="dl">Price Target</div><div class="dv">$${r.priceTarget.toFixed(2)}</div></div>`;
-  if (r.currentPrice) dc += `<div class="rv-datum"><div class="dl">Current Price</div><div class="dv">$${r.currentPrice.toFixed(2)}</div></div>`;
-  if (up!==null)      dc += `<div class="rv-datum"><div class="dl">Implied Upside</div><div class="dv ${up>=0?'up':'dn'}">${up>=0?'+':''}${up.toFixed(2)}%</div></div>`;
-  dc += `<div class="rv-datum"><div class="dl">Report Date</div><div class="dv">${fd(r.date)}</div></div>`;
-  document.getElementById('rv-datarow').innerHTML = dc;
-  document.getElementById('rv-thesis').innerHTML = r.thesis||'<em style="opacity:.5">No investment thesis provided.</em>';
-  document.getElementById('rv-body').innerHTML = r.body||'<p style="color:var(--text3);font-style:italic">No analysis written yet.</p>';
-  // Show edit/delete only if logged in
-  const isAuth = !!currentUser;
-  document.getElementById('rv-edit-btn').style.display = isAuth ? 'inline-block' : 'none';
-  document.getElementById('rv-del-btn').style.display  = isAuth ? 'inline-block' : 'none';
+  const r=reports.find(x=>x.id===id); if (!r) return;
+  currentId=id;
+  document.getElementById('rv-strip').textContent=`EQUITY RESEARCH — ${r.ticker} — ${r.company.toUpperCase()}`;
+  document.getElementById('rv-ticker').textContent=r.ticker;
+  document.getElementById('rv-badge').innerHTML=r.rating?`<span class="badge ${r.rating}">${r.rating}</span>`:'';
+  document.getElementById('rv-title').textContent=r.title||r.company;
+  const up=r.priceTarget&&r.currentPrice?((r.priceTarget-r.currentPrice)/r.currentPrice*100):null;
+  let dc=`<div class="rv-datum"><div class="dl">Company</div><div class="dv">${r.company}</div></div>`;
+  if (r.sector)       dc+=`<div class="rv-datum"><div class="dl">Sector</div><div class="dv">${r.sector}</div></div>`;
+  if (r.priceTarget)  dc+=`<div class="rv-datum"><div class="dl">Price Target</div><div class="dv">$${r.priceTarget.toFixed(2)}</div></div>`;
+  if (r.currentPrice) dc+=`<div class="rv-datum"><div class="dl">Current Price</div><div class="dv">$${r.currentPrice.toFixed(2)}</div></div>`;
+  if (up!==null)      dc+=`<div class="rv-datum"><div class="dl">Implied Upside</div><div class="dv ${up>=0?'up':'dn'}">${up>=0?'+':''}${up.toFixed(2)}%</div></div>`;
+  dc+=`<div class="rv-datum"><div class="dl">Report Date</div><div class="dv">${fd(r.date)}</div></div>`;
+  document.getElementById('rv-datarow').innerHTML=dc;
+  document.getElementById('rv-thesis').innerHTML=r.thesis||'<em style="opacity:.5">No investment thesis provided.</em>';
+  document.getElementById('rv-body').innerHTML=r.body||'<p style="color:var(--text3);font-style:italic">No analysis written yet.</p>';
+  const isAuth=!!currentUser;
+  document.getElementById('rv-edit-btn').style.display=isAuth?'inline-block':'none';
+  document.getElementById('rv-del-btn').style.display=isAuth?'inline-block':'none';
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-report').classList.add('active');
   document.getElementById('main').scrollTop=0;
@@ -564,22 +560,22 @@ function viewReport(id) {
   renderSidebar();
 }
 
-// ── EDITOR ──
+// Editor
 function openEditor(id) {
-  if (!currentUser) { toast('Please log in to create reports'); return; }
-  editingId = id||null; selectedRating='';
+  if (!currentUser) { openLogin(); return; }
+  editingId=id||null; selectedRating='';
   document.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
   if (id) {
-    const r = reports.find(x=>x.id===id);
-    document.getElementById('ed-strip').textContent = `EQUITY RESEARCH — EDITING: ${r.ticker}`;
-    document.getElementById('f-ticker').value  = r.ticker;
-    document.getElementById('f-company').value = r.company;
-    document.getElementById('f-title').value   = r.title||'';
-    document.getElementById('f-sector').value  = r.sector||'';
-    document.getElementById('f-pt').value      = r.priceTarget||'';
-    document.getElementById('f-cp').value      = r.currentPrice||'';
-    document.getElementById('f-thesis').value  = r.thesis||'';
-    document.getElementById('f-body').innerHTML= r.body||'';
+    const r=reports.find(x=>x.id===id);
+    document.getElementById('ed-strip').textContent=`EQUITY RESEARCH — EDITING: ${r.ticker}`;
+    document.getElementById('f-ticker').value=r.ticker;
+    document.getElementById('f-company').value=r.company;
+    document.getElementById('f-title').value=r.title||'';
+    document.getElementById('f-sector').value=r.sector||'';
+    document.getElementById('f-pt').value=r.priceTarget||'';
+    document.getElementById('f-cp').value=r.currentPrice||'';
+    document.getElementById('f-thesis').value=r.thesis||'';
+    document.getElementById('f-body').innerHTML=r.body||'';
     document.getElementById('ed-delete').style.display='inline-block';
     if (r.rating) setRating(r.rating);
   } else {
@@ -595,82 +591,63 @@ function openEditor(id) {
   currentView='editor';
 }
 
-function setRating(r) {
-  selectedRating=r;
-  document.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
-  const el=document.getElementById('rbtn-'+r);
-  if (el) el.className=`rbtn sel ${r}`;
-}
-
+function setRating(r){selectedRating=r;document.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');const el=document.getElementById('rbtn-'+r);if(el)el.className=`rbtn sel ${r}`;}
 function fmt(cmd){document.getElementById('f-body').focus();document.execCommand(cmd,false,null);}
 function insertH2(){document.getElementById('f-body').focus();document.execCommand('formatBlock',false,'h2');}
 function insertSection(name){document.getElementById('f-body').focus();document.execCommand('insertHTML',false,`<h2>${name}</h2><p><br></p>`);}
 
 async function saveReport() {
-  const ticker  = document.getElementById('f-ticker').value.trim().toUpperCase();
-  const company = document.getElementById('f-company').value.trim();
-  if (!ticker||!company) { toast('Ticker and company name required'); return; }
-  const btn = document.getElementById('save-btn');
+  const ticker=document.getElementById('f-ticker').value.trim().toUpperCase();
+  const company=document.getElementById('f-company').value.trim();
+  if (!ticker||!company){toast('Ticker and company name required');return;}
+  const btn=document.getElementById('save-btn');
   btn.disabled=true; btn.textContent='SAVING…';
-  const payload = {
+  const payload={
     ticker, company,
-    title:        document.getElementById('f-title').value.trim()||null,
-    sector:       document.getElementById('f-sector').value||null,
-    rating:       selectedRating||null,
-    price_target: parseFloat(document.getElementById('f-pt').value)||null,
+    title:document.getElementById('f-title').value.trim()||null,
+    sector:document.getElementById('f-sector').value||null,
+    rating:selectedRating||null,
+    price_target:parseFloat(document.getElementById('f-pt').value)||null,
     current_price:parseFloat(document.getElementById('f-cp').value)||null,
-    thesis:       document.getElementById('f-thesis').value.trim()||null,
-    body:         document.getElementById('f-body').innerHTML||null
+    thesis:document.getElementById('f-thesis').value.trim()||null,
+    body:document.getElementById('f-body').innerHTML||null
   };
   let error;
-  if (editingId) {
-    ({ error } = await db.from('reports').update(payload).eq('id', editingId));
-  } else {
-    ({ error } = await db.from('reports').insert(payload));
-  }
+  if (editingId){({error}=await db.from('reports').update(payload).eq('id',editingId));}
+  else{({error}=await db.from('reports').insert(payload));}
   btn.disabled=false; btn.textContent='SAVE REPORT';
-  if (error) { toast('Error saving: '+error.message); console.error(error); return; }
+  if (error){toast('Error: '+error.message);console.error(error);return;}
   toast('Report saved');
   await loadReports();
-  // Navigate to the saved report
-  const savedId = editingId || reports[0]?.id;
-  if (savedId) viewReport(savedId);
-  else goView('dashboard');
+  const savedId=editingId||reports[0]?.id;
+  if (savedId) viewReport(savedId); else goView('dashboard');
 }
 
 async function deleteReport(id) {
   if (!confirm('Permanently delete this report?')) return;
-  const { error } = await db.from('reports').delete().eq('id', id);
-  if (error) { toast('Error deleting: '+error.message); return; }
+  const {error}=await db.from('reports').delete().eq('id',id);
+  if (error){toast('Error: '+error.message);return;}
   toast('Report deleted');
   currentId=null;
   await loadReports();
   goView('dashboard');
 }
+function deleteFromEditor(){if(editingId)deleteReport(editingId);}
 
-function deleteFromEditor() { if (editingId) deleteReport(editingId); }
-
-// ── HELPERS ──
 function fd(iso){return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400);}
 
-// ── INIT — check session ──
-(async () => {
-  // Hide nav elements until logged in
-  document.getElementById('btn-new').style.display='none';
-  document.getElementById('btn-logout').style.display='none';
-
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('tb-user').textContent = currentUser.email.split('@')[0].toUpperCase();
+// Init
+(async()=>{
+  const {data:{session}}=await db.auth.getSession();
+  if (session){
+    currentUser=session.user;
+    document.getElementById('tb-user').textContent=currentUser.email.split('@')[0].toUpperCase();
     document.getElementById('btn-new').style.display='inline-block';
     document.getElementById('btn-logout').style.display='inline-block';
   }
-  // Load reports regardless (they're publicly readable)
   await loadReports();
-  document.getElementById('dash-date').textContent =
+  document.getElementById('dash-date').textContent=
     new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 })();
 </script>
