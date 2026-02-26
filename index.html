@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Equity Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#f5f4f0; --bg2:#edece7; --bg3:#e4e2db;
+  --white:#ffffff; --border:#d4d1c8; --border2:#c0bdb3;
+  --text:#1a1916; --text2:#5c5a53; --text3:#9e9b93;
+  --orange:#d45f00; --orange2:#b84f00;
+  --green:#1a7a4a; --green-bg:#e8f4ed;
+  --red:#c0392b; --red-bg:#fdecea;
+  --blue:#1a4a8a; --blue-bg:#e8eef8;
+  --amber:#8a6200; --amber-bg:#fdf6e3;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+  --serif:'IBM Plex Serif',serif;
+}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+
+/* TOPBAR */
+#topbar{height:44px;background:var(--text);color:#f5f4f0;display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:200;user-select:none}
+.tb-brand{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);margin-right:24px;white-space:nowrap}
+.tb-brand span{color:rgba(245,244,240,.35);font-weight:300}
+.tb-div{width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 2px}
+.tb-nav{display:flex;height:100%}
+.tb-nav button{background:none;border:none;border-bottom:2px solid transparent;color:rgba(245,244,240,.5);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;padding:0 14px;cursor:pointer;height:100%;transition:all .12s}
+.tb-nav button:hover{color:rgba(245,244,240,.85)}
+.tb-nav button.active{color:#f5f4f0;border-bottom-color:var(--orange)}
+.tb-sp{flex:1}
+.tb-clock{font-family:var(--mono);font-size:10px;color:rgba(245,244,240,.3);letter-spacing:.08em;margin-right:16px}
+.tb-user{font-family:var(--mono);font-size:10px;color:rgba(245,244,240,.5);margin-right:12px;letter-spacing:.06em}
+#btn-new{background:var(--orange);color:#fff;border:none;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:7px 16px;cursor:pointer;transition:background .12s;margin-left:8px}
+#btn-new:hover{background:var(--orange2)}
+#btn-logout{background:none;color:rgba(245,244,240,.4);border:1px solid rgba(255,255,255,.1);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .12s;margin-left:8px}
+#btn-logout:hover{color:rgba(245,244,240,.8);border-color:rgba(255,255,255,.3)}
+
+/* LOGIN SCREEN */
+#login-screen{position:fixed;inset:0;background:var(--text);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:0}
+.login-box{width:380px;background:#1e1d1a;border:1px solid #2e2d29}
+.login-top{padding:24px 28px;border-bottom:1px solid #2e2d29}
+.login-brand{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
+.login-sub{font-family:var(--mono);font-size:10px;color:rgba(245,244,240,.3);letter-spacing:.1em}
+.login-form{padding:24px 28px;display:flex;flex-direction:column;gap:14px}
+.login-field label{display:block;font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,244,240,.35);margin-bottom:5px}
+.login-field input{width:100%;background:#111;border:1px solid #2e2d29;font-family:var(--mono);font-size:12px;color:#f5f4f0;padding:8px 10px;outline:none;transition:border-color .12s}
+.login-field input:focus{border-color:var(--orange)}
+.login-field input::placeholder{color:#444}
+.login-btn{width:100%;background:var(--orange);color:#fff;border:none;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:11px;cursor:pointer;transition:background .12s;margin-top:4px}
+.login-btn:hover{background:var(--orange2)}
+.login-err{font-family:var(--mono);font-size:10px;color:#f06060;text-align:center;min-height:16px;letter-spacing:.06em}
+.login-note{font-family:var(--mono);font-size:9px;color:rgba(245,244,240,.2);text-align:center;padding:0 28px 20px;line-height:1.6;letter-spacing:.04em}
+
+/* LAYOUT */
+#layout{display:flex;height:calc(100vh - 44px)}
+#sidebar{width:236px;min-width:236px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-search-wrap{padding:8px 10px;border-bottom:1px solid var(--border)}
+.sb-search{width:100%;background:var(--bg);border:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--text);padding:5px 8px;outline:none;transition:border-color .12s}
+.sb-search:focus{border-color:var(--orange)}
+.sb-search::placeholder{color:var(--text3)}
+.sb-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);padding:7px 10px 5px;background:var(--bg2);border-bottom:1px solid var(--border)}
+#sb-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.sb-item{padding:8px 10px;border-bottom:1px solid var(--bg2);cursor:pointer;transition:background .1s;display:flex;flex-direction:column;gap:2px}
+.sb-item:hover{background:var(--bg)}
+.sb-item.active{background:var(--bg2);border-left:2px solid var(--orange)}
+.si-ticker{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;justify-content:space-between}
+.si-co{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.si-dt{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:1px}
+.badge{font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:1px 5px}
+.badge.BUY{background:var(--green-bg);color:var(--green)}
+.badge.HOLD{background:var(--amber-bg);color:var(--amber)}
+.badge.SELL{background:var(--red-bg);color:var(--red)}
+.badge.WATCH{background:var(--blue-bg);color:var(--blue)}
+
+/* MAIN */
+#main{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.view{display:none;padding:24px 28px;animation:fadeIn .18s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:.6}to{opacity:1}}
+
+/* DASHBOARD */
+.page-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;border-bottom:2px solid var(--text);padding-bottom:10px}
+.page-header h1{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.ph-sub{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:20px}
+.kpi{background:var(--white);padding:14px 16px}
+.k-label{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.k-val{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);line-height:1}
+.k-val.up{color:var(--green)} .k-val.dn{color:var(--red)}
+.k-sub{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:3px}
+.tbl-wrap{border:1px solid var(--border);background:var(--white)}
+.tbl-bar{padding:7px 12px;background:var(--text);color:var(--orange);font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+.tbl-bar span{color:rgba(245,244,240,.3);font-weight:400}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg2);border-bottom:1px solid var(--border2)}
+thead th{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);text-align:left;padding:7px 12px;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--bg2);cursor:pointer;transition:background .1s}
+tbody tr:hover{background:var(--bg)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
+.td-tick{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--text)}
+.td-mono{font-family:var(--mono);font-size:11.5px;color:var(--text2)}
+.td-up{font-family:var(--mono);font-size:11.5px;color:var(--green);font-weight:500}
+.td-dn{font-family:var(--mono);font-size:11.5px;color:var(--red);font-weight:500}
+.td-muted{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.empty-state{text-align:center;padding:60px 20px}
+.es-label{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.es-body{font-size:13px;color:var(--text3)}
+
+/* REPORT VIEW */
+.rv-strip{background:var(--text);color:var(--orange);font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;padding:6px 0 6px 28px;margin:-24px -28px 0}
+.rv-head{margin-top:20px;padding-bottom:16px;border-bottom:1px solid var(--border2);margin-bottom:20px}
+.rv-ticker-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.rv-ticker{font-family:var(--mono);font-size:28px;font-weight:600;color:var(--text);line-height:1}
+.rv-title{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--text);margin-bottom:14px;line-height:1.35}
+.rv-datarow{display:flex;background:var(--bg2);border:1px solid var(--border);width:fit-content;flex-wrap:wrap}
+.rv-datum{padding:8px 16px;border-right:1px solid var(--border)}
+.rv-datum:last-child{border-right:none}
+.dl{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.dv{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text)}
+.dv.up{color:var(--green)} .dv.dn{color:var(--red)}
+.rv-thesis{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--orange);padding:14px 18px;font-family:var(--serif);font-style:italic;font-size:13.5px;line-height:1.75;color:var(--text2);margin-bottom:24px}
+.rv-body{font-family:var(--sans);font-size:13.5px;line-height:1.8;color:var(--text)}
+.rv-body h2{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);background:var(--bg2);padding:6px 10px;margin:22px 0 10px;border-left:2px solid var(--orange)}
+.rv-body p{margin-bottom:12px}
+.rv-body ul,.rv-body ol{padding-left:20px;margin-bottom:12px}
+.rv-body li{margin-bottom:4px}
+.rv-actions{margin-top:28px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center}
+
+/* EDITOR */
+.ed-strip{background:var(--text);color:var(--orange);font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;padding:6px 0 6px 28px;margin:-24px -28px 0}
+.ed-form{margin-top:22px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.ff{margin-bottom:12px}
+.field label{display:block;font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;background:var(--white);border:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text);padding:7px 9px;outline:none;transition:border-color .12s;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--orange)}
+.field textarea{font-family:var(--sans);font-size:13px;line-height:1.6;min-height:80px;resize:vertical}
+.field select{cursor:pointer}
+.rating-btns{display:flex;border:1px solid var(--border);width:100%}
+.rbtn{flex:1;background:var(--white);border:none;border-right:1px solid var(--border);font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:8px 4px;cursor:pointer;color:var(--text3);transition:all .1s}
+.rbtn:last-child{border-right:none}
+.rbtn:hover{background:var(--bg);color:var(--text)}
+.rbtn.sel.BUY{background:var(--green-bg);color:var(--green)}
+.rbtn.sel.HOLD{background:var(--amber-bg);color:var(--amber)}
+.rbtn.sel.SELL{background:var(--red-bg);color:var(--red)}
+.rbtn.sel.WATCH{background:var(--blue-bg);color:var(--blue)}
+.toolbar{background:var(--bg2);border:1px solid var(--border);border-bottom:none;display:flex;align-items:center;padding:3px 6px;flex-wrap:wrap;gap:1px}
+.toolbar button{background:none;border:none;font-family:var(--mono);font-size:11px;color:var(--text2);padding:4px 7px;cursor:pointer;transition:all .1s;border-radius:2px}
+.toolbar button:hover{background:var(--border);color:var(--text)}
+.tb-sep{width:1px;height:16px;background:var(--border2);margin:0 3px}
+.ins-btn{font-size:9px!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:var(--text3)!important;background:var(--bg3)!important;border:1px solid var(--border)!important;padding:3px 8px!important;margin:1px 1px!important}
+.ins-btn:hover{background:var(--border2)!important;color:var(--text)!important}
+.rich-area{min-height:360px;background:var(--white);border:1px solid var(--border);padding:14px 16px;outline:none;font-family:var(--sans);font-size:13.5px;line-height:1.8;color:var(--text);transition:border-color .12s}
+.rich-area:focus{border-color:var(--orange)}
+.rich-area:empty::before{content:attr(data-ph);color:var(--text3);font-style:italic}
+.rich-area h2{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);background:var(--bg2);padding:5px 10px;margin:18px 0 8px;border-left:2px solid var(--orange)}
+.rich-area p{margin-bottom:10px}
+.btn-primary{background:var(--text);color:#f5f4f0;border:none;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:9px 20px;cursor:pointer;transition:background .12s}
+.btn-primary:hover{background:var(--orange2)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-sec{background:var(--white);color:var(--text2);border:1px solid var(--border);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px;cursor:pointer;transition:all .12s}
+.btn-sec:hover{border-color:var(--text2);color:var(--text)}
+.btn-danger{background:var(--white);color:var(--red);border:1px solid rgba(192,57,43,.3);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px;cursor:pointer;transition:all .12s}
+.btn-danger:hover{background:var(--red-bg)}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(245,244,240,.7);display:flex;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(2px)}
+.loading-box{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text2);background:var(--white);border:1px solid var(--border);padding:16px 24px}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#f5f4f0;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px;border-left:3px solid var(--orange);opacity:0;transform:translateY(8px);transition:all .18s;pointer-events:none;z-index:999}
+#toast.show{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--border2)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-top">
+      <div class="login-brand">The Equity Terminal</div>
+      <div class="login-sub">// EQUITY RESEARCH PLATFORM</div>
+    </div>
+    <div class="login-form">
+      <div class="login-field field">
+        <label>Email</label>
+        <input type="email" id="l-email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="login-field field">
+        <label>Password</label>
+        <input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="login-err" id="l-err"></div>
+      <button class="login-btn" onclick="doLogin()">ACCESS TERMINAL</button>
+    </div>
+    <div class="login-note">This terminal is private. Reports are publicly readable via link — only authenticated users can create or edit.</div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-brand">The Equity Terminal <span>// EQUITY</span></div>
+  <div class="tb-div"></div>
+  <div class="tb-nav">
+    <button class="active" onclick="goView('dashboard')">Coverage</button>
+    <button onclick="goView('list')">Reports</button>
+  </div>
+  <div class="tb-sp"></div>
+  <div class="tb-clock" id="clock"></div>
+  <div class="tb-user" id="tb-user"></div>
+  <button id="btn-new" onclick="openEditor()">+ NEW REPORT</button>
+  <button id="btn-logout" onclick="doLogout()">LOGOUT</button>
+</div>
+
+<div id="layout">
+  <div id="sidebar">
+    <div class="sb-search-wrap">
+      <input class="sb-search" id="sb-search" placeholder="Search ticker / company…" oninput="renderSidebar()">
+    </div>
+    <div class="sb-label">Coverage <span id="sb-count" style="font-weight:300;letter-spacing:0;text-transform:none"></span></div>
+    <div id="sb-list"></div>
+  </div>
+
+  <div id="main">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="page-header">
+        <h1>Coverage Universe</h1>
+        <div class="ph-sub" id="dash-date"></div>
+      </div>
+      <div class="kpi-row" id="kpi-row"></div>
+      <div class="tbl-wrap">
+        <div class="tbl-bar">Active Reports <span id="tbl-count"></span></div>
+        <table>
+          <thead><tr>
+            <th>Ticker</th><th>Company</th><th>Sector</th><th>Rating</th>
+            <th>Price Target</th><th>Current Price</th><th>Implied Upside</th><th>Date</th>
+          </tr></thead>
+          <tbody id="dash-tbody"></tbody>
+        </table>
+        <div id="dash-empty" class="empty-state" style="display:none">
+          <div class="es-label">No Reports Found</div>
+          <div class="es-body">Click <strong>+ NEW REPORT</strong> to begin your coverage.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIST -->
+    <div class="view" id="view-list">
+      <div class="page-header">
+        <h1>All Reports</h1>
+        <div class="ph-sub" id="list-sub"></div>
+      </div>
+      <div id="list-body"></div>
+      <div id="list-empty" class="empty-state" style="display:none">
+        <div class="es-label">No Reports Found</div>
+        <div class="es-body">Click <strong>+ NEW REPORT</strong> to begin your coverage.</div>
+      </div>
+    </div>
+
+    <!-- REPORT VIEW -->
+    <div class="view" id="view-report">
+      <div class="rv-strip" id="rv-strip">EQUITY RESEARCH</div>
+      <div style="margin-top:20px">
+        <div class="rv-head">
+          <div class="rv-ticker-row">
+            <div class="rv-ticker" id="rv-ticker"></div>
+            <div id="rv-badge"></div>
+          </div>
+          <div class="rv-title" id="rv-title"></div>
+          <div class="rv-datarow" id="rv-datarow"></div>
+        </div>
+        <div class="rv-thesis" id="rv-thesis"></div>
+        <div class="rv-body" id="rv-body"></div>
+        <div class="rv-actions" id="rv-actions">
+          <button class="btn-primary" id="rv-edit-btn" onclick="openEditor(currentId)" style="display:none">Edit Report</button>
+          <button class="btn-sec" onclick="goBack()">← Back</button>
+          <button class="btn-danger" id="rv-del-btn" onclick="deleteReport(currentId)" style="display:none;margin-left:auto">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="view" id="view-editor">
+      <div class="ed-strip" id="ed-strip">EQUITY RESEARCH — NEW REPORT</div>
+      <div class="ed-form">
+        <div class="fg2">
+          <div class="field"><label>Ticker Symbol *</label><input id="f-ticker" type="text" placeholder="e.g. AAPL" maxlength="12" oninput="this.value=this.value.toUpperCase()"></div>
+          <div class="field"><label>Company Name *</label><input id="f-company" type="text" placeholder="e.g. Apple Inc."></div>
+        </div>
+        <div class="fg2">
+          <div class="field"><label>Report Title</label><input id="f-title" type="text" placeholder="e.g. Initiating Coverage — Strong Buy"></div>
+          <div class="field"><label>Sector</label>
+            <select id="f-sector">
+              <option value="">— Select Sector —</option>
+              <option>Communication Services</option><option>Consumer Discretionary</option>
+              <option>Consumer Staples</option><option>Energy</option><option>Financials</option>
+              <option>Healthcare</option><option>Industrials</option><option>Information Technology</option>
+              <option>Materials</option><option>Real Estate</option><option>Utilities</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg4">
+          <div class="field" style="grid-column:span 2"><label>Rating</label>
+            <div class="rating-btns">
+              <button class="rbtn" id="rbtn-BUY"  onclick="setRating('BUY')">BUY</button>
+              <button class="rbtn" id="rbtn-HOLD" onclick="setRating('HOLD')">HOLD</button>
+              <button class="rbtn" id="rbtn-SELL" onclick="setRating('SELL')">SELL</button>
+              <button class="rbtn" id="rbtn-WATCH" onclick="setRating('WATCH')">WATCH</button>
+            </div>
+          </div>
+          <div class="field"><label>Price Target ($)</label><input id="f-pt" type="number" placeholder="0.00" step="0.01" min="0"></div>
+          <div class="field"><label>Current Price ($)</label><input id="f-cp" type="number" placeholder="0.00" step="0.01" min="0"></div>
+        </div>
+        <div class="ff field"><label>Investment Thesis</label>
+          <textarea id="f-thesis" placeholder="Concise investment thesis (1–3 sentences)…"></textarea>
+        </div>
+        <div class="ff field"><label>Full Analysis</label>
+          <div class="toolbar">
+            <button onclick="fmt('bold')"><b>B</b></button>
+            <button onclick="fmt('italic')"><i>I</i></button>
+            <button onclick="fmt('underline')"><u>U</u></button>
+            <div class="tb-sep"></div>
+            <button onclick="insertH2()">H2</button>
+            <button onclick="fmt('insertUnorderedList')">UL</button>
+            <button onclick="fmt('insertOrderedList')">OL</button>
+            <div class="tb-sep"></div>
+            <button class="ins-btn" onclick="insertSection('Investment Thesis')">+ Thesis</button>
+            <button class="ins-btn" onclick="insertSection('Bull Case')">+ Bull Case</button>
+            <button class="ins-btn" onclick="insertSection('Bear Case')">+ Bear Case</button>
+            <button class="ins-btn" onclick="insertSection('Valuation')">+ Valuation</button>
+            <button class="ins-btn" onclick="insertSection('Key Risks')">+ Risks</button>
+            <button class="ins-btn" onclick="insertSection('Catalysts')">+ Catalysts</button>
+          </div>
+          <div class="rich-area" id="f-body" contenteditable="true" data-ph="Write your full equity analysis here…"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <button class="btn-primary" id="save-btn" onclick="saveReport()">SAVE REPORT</button>
+          <button class="btn-sec" onclick="goBack()">CANCEL</button>
+          <button class="btn-danger" id="ed-delete" onclick="deleteFromEditor()" style="display:none;margin-left:auto">DELETE REPORT</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── SUPABASE INIT ──
+const SUPA_URL = 'https://imfvmjdbyqrepadgqjyp.supabase.co';
+const SUPA_KEY = 'sb_publishable_H20XOlSPQA1qMjI3uH7rog_JARKxkZ9';
+const { createClient } = supabase;
+const db = createClient(SUPA_URL, SUPA_KEY);
+
+// ── STATE ──
+let reports = [];
+let currentView = 'dashboard';
+let currentId = null;
+let editingId = null;
+let selectedRating = '';
+let currentUser = null;
+
+// ── CLOCK ──
+function tick() {
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) + '  ' +
+    n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(tick, 1000); tick();
+
+// ── AUTH ──
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const errEl = document.getElementById('l-err');
+  errEl.textContent = '';
+  if (!email || !pass) { errEl.textContent = 'Email and password required'; return; }
+
+  const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    // Try sign up if user doesn't exist yet
+    if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('not found')) {
+      const { error: err2 } = await db.auth.signUp({ email, password: pass });
+      if (err2) { errEl.textContent = err2.message; return; }
+      errEl.textContent = 'Account created — check email to confirm, then log in.';
+      return;
+    }
+    errEl.textContent = error.message; return;
+  }
+  currentUser = data.user;
+  onLoggedIn();
+}
+
+async function doLogout() {
+  await db.auth.signOut();
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('tb-user').textContent = '';
+  document.getElementById('btn-new').style.display = 'none';
+  document.getElementById('btn-logout').style.display = 'none';
+}
+
+function onLoggedIn() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('tb-user').textContent = currentUser.email.split('@')[0].toUpperCase();
+  document.getElementById('btn-new').style.display = 'inline-block';
+  document.getElementById('btn-logout').style.display = 'inline-block';
+  loadReports();
+}
+
+// ── DATA ──
+async function loadReports() {
+  const { data, error } = await db.from('reports').select('*').order('created_at', { ascending: false });
+  if (error) { toast('Error loading reports'); console.error(error); return; }
+  reports = (data || []).map(r => ({
+    id: r.id,
+    ticker: r.ticker,
+    company: r.company,
+    title: r.title,
+    sector: r.sector,
+    rating: r.rating,
+    priceTarget: r.price_target,
+    currentPrice: r.current_price,
+    thesis: r.thesis,
+    body: r.body,
+    date: r.created_at
+  }));
+  renderDashboard();
+  renderSidebar();
+}
+
+// ── NAVIGATION ──
+function goView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelectorAll('.tb-nav button').forEach((b,i) => {
+    b.classList.toggle('active', (i===0&&v==='dashboard')||(i===1&&v==='list'));
+  });
+  currentView = v;
+  if (v==='dashboard') renderDashboard();
+  if (v==='list') renderList();
+  renderSidebar();
+}
+
+function goBack() { goView('dashboard'); }
+
+// ── SIDEBAR ──
+function renderSidebar() {
+  const q = (document.getElementById('sb-search').value||'').toLowerCase();
+  const f = reports.filter(r => r.ticker.toLowerCase().includes(q)||r.company.toLowerCase().includes(q));
+  document.getElementById('sb-count').textContent = `(${f.length})`;
+  const el = document.getElementById('sb-list');
+  if (!f.length) { el.innerHTML=`<div style="padding:12px 10px;font-family:var(--mono);font-size:10px;color:var(--text3)">No results</div>`; return; }
+  el.innerHTML = f.map(r=>`
+    <div class="sb-item${currentId===r.id?' active':''}" onclick="viewReport('${r.id}')">
+      <div class="si-ticker">${r.ticker}${r.rating?`<span class="badge ${r.rating}">${r.rating}</span>`:''}</div>
+      <div class="si-co">${r.company}</div>
+      <div class="si-dt">${fd(r.date)}</div>
+    </div>`).join('');
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  document.getElementById('dash-date').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const n = reports.length;
+  document.getElementById('tbl-count').textContent = n ? `— ${n} POSITION${n!==1?'S':''}` : '';
+  const buy  = reports.filter(r=>r.rating==='BUY').length;
+  const hold = reports.filter(r=>r.rating==='HOLD').length;
+  const sell = reports.filter(r=>r.rating==='SELL').length;
+  const wu = reports.filter(r=>r.priceTarget&&r.currentPrice);
+  const ups = wu.map(r=>((r.priceTarget-r.currentPrice)/r.currentPrice)*100);
+  const avg = ups.length ? ups.reduce((a,b)=>a+b,0)/ups.length : null;
+  const secs = new Set(reports.map(r=>r.sector).filter(Boolean)).size;
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><div class="k-label">Reports</div><div class="k-val">${n}</div><div class="k-sub">${secs} sector${secs!==1?'s':''}</div></div>
+    <div class="kpi"><div class="k-label">Buy</div><div class="k-val up">${buy}</div><div class="k-sub">${n?Math.round(buy/n*100):0}% of coverage</div></div>
+    <div class="kpi"><div class="k-label">Hold</div><div class="k-val">${hold}</div><div class="k-sub">${n?Math.round(hold/n*100):0}% of coverage</div></div>
+    <div class="kpi"><div class="k-label">Sell</div><div class="k-val dn">${sell}</div><div class="k-sub">${n?Math.round(sell/n*100):0}% of coverage</div></div>
+    <div class="kpi"><div class="k-label">Avg. Upside</div><div class="k-val ${avg===null?'':avg>=0?'up':'dn'}">${avg===null?'—':(avg>=0?'+':'')+avg.toFixed(1)+'%'}</div><div class="k-sub">${ups.length} w/ targets</div></div>`;
+  if (!n) { document.getElementById('dash-tbody').innerHTML=''; document.getElementById('dash-empty').style.display='block'; return; }
+  document.getElementById('dash-empty').style.display='none';
+  document.getElementById('dash-tbody').innerHTML = reports.map(r => {
+    const up = r.priceTarget&&r.currentPrice ? ((r.priceTarget-r.currentPrice)/r.currentPrice*100) : null;
+    return `<tr onclick="viewReport('${r.id}')">
+      <td class="td-tick">${r.ticker}</td><td>${r.company}</td>
+      <td class="td-muted">${r.sector||'—'}</td>
+      <td>${r.rating?`<span class="badge ${r.rating}">${r.rating}</span>`:'—'}</td>
+      <td class="td-mono">${r.priceTarget?'$'+r.priceTarget.toFixed(2):'—'}</td>
+      <td class="td-mono">${r.currentPrice?'$'+r.currentPrice.toFixed(2):'—'}</td>
+      <td class="${up===null?'td-muted':up>=0?'td-up':'td-dn'}">${up===null?'—':(up>=0?'+':'')+up.toFixed(2)+'%'}</td>
+      <td class="td-muted">${fd(r.date)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── LIST ──
+function renderList() {
+  const n = reports.length;
+  document.getElementById('list-sub').textContent = n ? `${n} report${n!==1?'s':''}` : '';
+  if (!n) { document.getElementById('list-body').innerHTML=''; document.getElementById('list-empty').style.display='block'; return; }
+  document.getElementById('list-empty').style.display='none';
+  document.getElementById('list-body').innerHTML = reports.map(r => {
+    const up = r.priceTarget&&r.currentPrice ? ((r.priceTarget-r.currentPrice)/r.currentPrice*100) : null;
+    return `<div onclick="viewReport('${r.id}')" style="background:var(--white);border:1px solid var(--border);margin-bottom:8px;padding:14px 16px;cursor:pointer;display:flex;gap:16px;align-items:flex-start;transition:border-color .1s"
+      onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="min-width:68px">
+        <div style="font-family:var(--mono);font-size:16px;font-weight:600;margin-bottom:4px">${r.ticker}</div>
+        ${r.rating?`<span class="badge ${r.rating}">${r.rating}</span>`:''}
+      </div>
+      <div style="flex:1;overflow:hidden">
+        <div style="font-family:var(--serif);font-size:14px;font-weight:600;margin-bottom:4px">${r.title||r.company}</div>
+        <div style="font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.thesis||'No investment thesis provided.'}</div>
+      </div>
+      <div style="text-align:right;min-width:70px;flex-shrink:0">
+        ${up!==null?`<div style="font-family:var(--mono);font-size:12px;font-weight:500;color:${up>=0?'var(--green)':'var(--red)'}">${up>=0?'+':''}${up.toFixed(1)}%</div>`:''}
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:3px">${fd(r.date)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── REPORT VIEW ──
+function viewReport(id) {
+  const r = reports.find(x=>x.id===id); if (!r) return;
+  currentId = id;
+  document.getElementById('rv-strip').textContent = `EQUITY RESEARCH — ${r.ticker} — ${r.company.toUpperCase()}`;
+  document.getElementById('rv-ticker').textContent = r.ticker;
+  document.getElementById('rv-badge').innerHTML = r.rating?`<span class="badge ${r.rating}">${r.rating}</span>`:'';
+  document.getElementById('rv-title').textContent = r.title||r.company;
+  const up = r.priceTarget&&r.currentPrice ? ((r.priceTarget-r.currentPrice)/r.currentPrice*100) : null;
+  let dc = `<div class="rv-datum"><div class="dl">Company</div><div class="dv">${r.company}</div></div>`;
+  if (r.sector)       dc += `<div class="rv-datum"><div class="dl">Sector</div><div class="dv">${r.sector}</div></div>`;
+  if (r.priceTarget)  dc += `<div class="rv-datum"><div class="dl">Price Target</div><div class="dv">$${r.priceTarget.toFixed(2)}</div></div>`;
+  if (r.currentPrice) dc += `<div class="rv-datum"><div class="dl">Current Price</div><div class="dv">$${r.currentPrice.toFixed(2)}</div></div>`;
+  if (up!==null)      dc += `<div class="rv-datum"><div class="dl">Implied Upside</div><div class="dv ${up>=0?'up':'dn'}">${up>=0?'+':''}${up.toFixed(2)}%</div></div>`;
+  dc += `<div class="rv-datum"><div class="dl">Report Date</div><div class="dv">${fd(r.date)}</div></div>`;
+  document.getElementById('rv-datarow').innerHTML = dc;
+  document.getElementById('rv-thesis').innerHTML = r.thesis||'<em style="opacity:.5">No investment thesis provided.</em>';
+  document.getElementById('rv-body').innerHTML = r.body||'<p style="color:var(--text3);font-style:italic">No analysis written yet.</p>';
+  // Show edit/delete only if logged in
+  const isAuth = !!currentUser;
+  document.getElementById('rv-edit-btn').style.display = isAuth ? 'inline-block' : 'none';
+  document.getElementById('rv-del-btn').style.display  = isAuth ? 'inline-block' : 'none';
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-report').classList.add('active');
+  document.getElementById('main').scrollTop=0;
+  currentView='report';
+  renderSidebar();
+}
+
+// ── EDITOR ──
+function openEditor(id) {
+  if (!currentUser) { toast('Please log in to create reports'); return; }
+  editingId = id||null; selectedRating='';
+  document.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+  if (id) {
+    const r = reports.find(x=>x.id===id);
+    document.getElementById('ed-strip').textContent = `EQUITY RESEARCH — EDITING: ${r.ticker}`;
+    document.getElementById('f-ticker').value  = r.ticker;
+    document.getElementById('f-company').value = r.company;
+    document.getElementById('f-title').value   = r.title||'';
+    document.getElementById('f-sector').value  = r.sector||'';
+    document.getElementById('f-pt').value      = r.priceTarget||'';
+    document.getElementById('f-cp').value      = r.currentPrice||'';
+    document.getElementById('f-thesis').value  = r.thesis||'';
+    document.getElementById('f-body').innerHTML= r.body||'';
+    document.getElementById('ed-delete').style.display='inline-block';
+    if (r.rating) setRating(r.rating);
+  } else {
+    document.getElementById('ed-strip').textContent='EQUITY RESEARCH — NEW REPORT';
+    ['f-ticker','f-company','f-title','f-pt','f-cp','f-thesis'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('f-sector').value='';
+    document.getElementById('f-body').innerHTML='';
+    document.getElementById('ed-delete').style.display='none';
+  }
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-editor').classList.add('active');
+  document.getElementById('main').scrollTop=0;
+  currentView='editor';
+}
+
+function setRating(r) {
+  selectedRating=r;
+  document.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+  const el=document.getElementById('rbtn-'+r);
+  if (el) el.className=`rbtn sel ${r}`;
+}
+
+function fmt(cmd){document.getElementById('f-body').focus();document.execCommand(cmd,false,null);}
+function insertH2(){document.getElementById('f-body').focus();document.execCommand('formatBlock',false,'h2');}
+function insertSection(name){document.getElementById('f-body').focus();document.execCommand('insertHTML',false,`<h2>${name}</h2><p><br></p>`);}
+
+async function saveReport() {
+  const ticker  = document.getElementById('f-ticker').value.trim().toUpperCase();
+  const company = document.getElementById('f-company').value.trim();
+  if (!ticker||!company) { toast('Ticker and company name required'); return; }
+  const btn = document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='SAVING…';
+  const payload = {
+    ticker, company,
+    title:        document.getElementById('f-title').value.trim()||null,
+    sector:       document.getElementById('f-sector').value||null,
+    rating:       selectedRating||null,
+    price_target: parseFloat(document.getElementById('f-pt').value)||null,
+    current_price:parseFloat(document.getElementById('f-cp').value)||null,
+    thesis:       document.getElementById('f-thesis').value.trim()||null,
+    body:         document.getElementById('f-body').innerHTML||null
+  };
+  let error;
+  if (editingId) {
+    ({ error } = await db.from('reports').update(payload).eq('id', editingId));
+  } else {
+    ({ error } = await db.from('reports').insert(payload));
+  }
+  btn.disabled=false; btn.textContent='SAVE REPORT';
+  if (error) { toast('Error saving: '+error.message); console.error(error); return; }
+  toast('Report saved');
+  await loadReports();
+  // Navigate to the saved report
+  const savedId = editingId || reports[0]?.id;
+  if (savedId) viewReport(savedId);
+  else goView('dashboard');
+}
+
+async function deleteReport(id) {
+  if (!confirm('Permanently delete this report?')) return;
+  const { error } = await db.from('reports').delete().eq('id', id);
+  if (error) { toast('Error deleting: '+error.message); return; }
+  toast('Report deleted');
+  currentId=null;
+  await loadReports();
+  goView('dashboard');
+}
+
+function deleteFromEditor() { if (editingId) deleteReport(editingId); }
+
+// ── HELPERS ──
+function fd(iso){return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400);}
+
+// ── INIT — check session ──
+(async () => {
+  // Hide nav elements until logged in
+  document.getElementById('btn-new').style.display='none';
+  document.getElementById('btn-logout').style.display='none';
+
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('tb-user').textContent = currentUser.email.split('@')[0].toUpperCase();
+    document.getElementById('btn-new').style.display='inline-block';
+    document.getElementById('btn-logout').style.display='inline-block';
+  }
+  // Load reports regardless (they're publicly readable)
+  await loadReports();
+  document.getElementById('dash-date').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+})();
+</script>
+</body>
+</html>
