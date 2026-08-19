@@ -222,7 +222,7 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
   <div class="tb-user" id="tb-user"></div>
   <button id="btn-new" onclick="openEditor()">+ NEW REPORT</button>
   <button id="btn-logout" onclick="doLogout()">LOGOUT</button>
-  <button id="admin-trigger" onclick="openLogin()">LOG IN</button>
+  <button id="admin-trigger" onclick="openLogin()" style="display:none">LOG IN</button>
 </div>
 
 <div id="layout">
@@ -397,6 +397,14 @@ document.getElementById('login-modal').addEventListener('click', function(e) {
   if (e.target === this) closeLogin();
 });
 
+// Secret login shortcut: Cmd/Ctrl + Shift + L
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+    e.preventDefault();
+    openLogin();
+  }
+});
+
 // Auth
 async function doLogin() {
   const email = document.getElementById('l-email').value.trim();
@@ -417,7 +425,6 @@ async function doLogout() {
   document.getElementById('tb-user').textContent = '';
   document.getElementById('btn-new').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
-  document.getElementById('admin-trigger').style.display = 'inline-block';
   toast('Logged out');
   goView('dashboard');
 }
@@ -426,7 +433,6 @@ function onLoggedIn() {
   document.getElementById('tb-user').textContent = currentUser.email.split('@')[0].toUpperCase();
   document.getElementById('btn-new').style.display = 'inline-block';
   document.getElementById('btn-logout').style.display = 'inline-block';
-  document.getElementById('admin-trigger').style.display = 'none';
   toast('Welcome back!');
 }
 
@@ -646,7 +652,6 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
     document.getElementById('tb-user').textContent=currentUser.email.split('@')[0].toUpperCase();
     document.getElementById('btn-new').style.display='inline-block';
     document.getElementById('btn-logout').style.display='inline-block';
-    document.getElementById('admin-trigger').style.display='none';
   }
   await loadReports();
   document.getElementById('dash-date').textContent=
