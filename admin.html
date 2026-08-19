@@ -161,11 +161,11 @@
   const SUPABASE_ANON_KEY = "sb_publishable_H20XOlSPQA1qMjI3uH7rog_JARKxkZ9";
   const BUCKET = "reports";
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const app = document.getElementById("app");
 
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await sb.auth.getSession();
     if (session) {
       renderUpload(session);
     } else {
@@ -199,7 +199,7 @@
       msg.textContent = "";
       msg.className = "msg";
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
 
       if (error) {
         msg.textContent = error.message;
@@ -227,7 +227,7 @@
     `;
 
     document.getElementById("logout-btn").addEventListener("click", async () => {
-      await supabase.auth.signOut();
+      await sb.auth.signOut();
       renderLogin();
     });
 
@@ -251,7 +251,7 @@
         msg.textContent = `Uploading ${file.name}...`;
         msg.className = "msg";
         const path = `${Date.now()}_${file.name}`;
-        const { error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: false });
+        const { error } = await sb.storage.from(BUCKET).upload(path, file, { upsert: false });
         if (error) {
           msg.textContent = `Failed: ${file.name} — ${error.message}`;
           msg.className = "msg error";
@@ -266,7 +266,7 @@
 
     async function loadFiles() {
       const listEl = document.getElementById("file-list");
-      const { data, error } = await supabase.storage.from(BUCKET).list("", {
+      const { data, error } = await sb.storage.from(BUCKET).list("", {
         sortBy: { column: "created_at", order: "desc" },
       });
 
@@ -281,7 +281,7 @@
 
       listEl.innerHTML = "";
       for (const f of data) {
-        const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(f.name);
+        const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(f.name);
         const li = document.createElement("li");
         li.innerHTML = `
           <a href="${urlData.publicUrl}" target="_blank" rel="noopener">${f.name}</a>
@@ -294,7 +294,7 @@
         btn.addEventListener("click", async () => {
           const name = btn.getAttribute("data-name");
           if (!confirm(`Delete ${name}?`)) return;
-          await supabase.storage.from(BUCKET).remove([name]);
+          await sb.storage.from(BUCKET).remove([name]);
           loadFiles();
         });
       });
