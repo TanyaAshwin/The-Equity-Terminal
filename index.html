@@ -39,8 +39,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13
 .tb-user{font-family:var(--mono);font-size:10px;color:rgba(245,244,240,.45);margin-right:10px;letter-spacing:.06em}
 
 /* Hidden admin trigger — tiny dot in corner */
-#admin-trigger{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.08);cursor:pointer;margin-left:8px;transition:background .2s;flex-shrink:0}
-#admin-trigger:hover{background:var(--orange)}
+#admin-trigger{background:none;color:rgba(245,244,240,.4);border:1px solid rgba(255,255,255,.1);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .12s;margin-left:8px;flex-shrink:0}
+#admin-trigger:hover{color:rgba(245,244,240,.8);border-color:var(--orange)}
 
 #btn-new{background:var(--orange);color:#fff;border:none;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:7px 16px;cursor:pointer;transition:background .12s;margin-left:8px;display:none}
 #btn-new:hover{background:var(--orange2)}
@@ -222,8 +222,7 @@ tbody td{padding:9px 12px;font-size:12px;vertical-align:middle}
   <div class="tb-user" id="tb-user"></div>
   <button id="btn-new" onclick="openEditor()">+ NEW REPORT</button>
   <button id="btn-logout" onclick="doLogout()">LOGOUT</button>
-  <!-- Tiny hidden dot — only you know to click this -->
-  <div id="admin-trigger" onclick="openLogin()" title=""></div>
+  <button id="admin-trigger" onclick="openLogin()">LOG IN</button>
 </div>
 
 <div id="layout">
@@ -418,6 +417,7 @@ async function doLogout() {
   document.getElementById('tb-user').textContent = '';
   document.getElementById('btn-new').style.display = 'none';
   document.getElementById('btn-logout').style.display = 'none';
+  document.getElementById('admin-trigger').style.display = 'inline-block';
   toast('Logged out');
   goView('dashboard');
 }
@@ -426,6 +426,7 @@ function onLoggedIn() {
   document.getElementById('tb-user').textContent = currentUser.email.split('@')[0].toUpperCase();
   document.getElementById('btn-new').style.display = 'inline-block';
   document.getElementById('btn-logout').style.display = 'inline-block';
+  document.getElementById('admin-trigger').style.display = 'none';
   toast('Welcome back!');
 }
 
@@ -645,6 +646,7 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
     document.getElementById('tb-user').textContent=currentUser.email.split('@')[0].toUpperCase();
     document.getElementById('btn-new').style.display='inline-block';
     document.getElementById('btn-logout').style.display='inline-block';
+    document.getElementById('admin-trigger').style.display='none';
   }
   await loadReports();
   document.getElementById('dash-date').textContent=
